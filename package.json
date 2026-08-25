@@ -1,0 +1,17 @@
+{
+  "name": "nutriscan-ai",
+  "version": "1.0.0",
+  "description": "> Scan your food using Google Gemini Multimodal AI to instantly unlock detailed nutritional breakdowns, evaluate dietary effectiveness, simulate cumulative long-term biological organ damage from junk foods, and receive clinical medical warnings (e.g. when having a fever, diabetes, or acid reflux).",
+  "main": "index.js",
+  "scripts": {
+    "dev": "serve -l 5173 .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "serve": "^14.2.6"
+  }
+}

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriScan AI - Food Scanner, Nutrition & Long-Term Health Impact Intelligence</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              900: '#064e3b',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Lucide Icons & Chart.js -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-emerald-500 selection:text-white pb-16">
+
+  <!-- TOP APP HEADER -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3.5 no-print">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <i data-lucide="scan" class="w-6 h-6 text-slate-950 font-bold"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-lg md:text-xl tracking-tight text-white flex items-center gap-2">
+            NutriScan <span class="text-emerald-400 font-normal text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">AI Vision</span>
+          </h1>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Powered by Google Gemini Multimodal Vision</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions / API Key Indicator -->
+      <div class="flex items-center gap-2.5">
+        
+        <button id="btnOpenSettings" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-700 hover:border-emerald-500/50 transition-all text-slate-300 hover:text-white">
+          <span id="apiKeyStatusDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="apiKeyStatusText">Set Gemini Key</span>
+          <i data-lucide="key" class="w-3.5 h-3.5 text-slate-400"></i>
+        </button>
+
+        <button id="btnPrintReport" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-700 hover:border-slate-500 transition-all text-slate-300 hover:text-white">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>Print Report</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 mt-6">
+
+    <!-- HERO INTRODUCTION -->
+    <section class="mb-6 text-center max-w-3xl mx-auto">
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
+        Know What Food <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">Does to Your Body</span>
+      </h2>
+      <p class="text-sm md:text-base text-slate-400">
+        Scan any meal to uncover instant nutritional metrics, long-term biological organ damage from junk foods, and strict medical warnings for illnesses like <strong>fever</strong>, diabetes, and acid reflux.
+      </p>
+    </section>
+
+    <!-- ACTIVE HEALTH PROFILE / ILLNESS SELECTOR -->
+    <div class="mb-6 glass-panel-light p-4 rounded-2xl border border-slate-800 no-print">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="stethoscope" class="w-4 h-4 text-emerald-400"></i>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300">My Active Health Profile (Filters & Highlights Risk)</span>
+        </div>
+        <span class="text-[11px] text-slate-400">Click badges if you currently experience any condition:</span>
+      </div>
+      <div id="healthConditionPills" class="flex flex-wrap gap-2">
+        <button data-condition="fever" class="condition-pill px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-red-400 transition-all flex items-center gap-1.5">
+          <span>🤒</span> <span>I have a Fever / Infection</span>
+        </button>
+        <button data-condition="gerd" class="condition-pill px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-amber-400 transition-all flex items-center gap-1.5">
+          <span>🔥</span> <span>Acid Reflux / GERD</span>
+        </button>
+        <button data-condition="diarrhea" class="condition-pill px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-orange-400 transition-all flex items-center gap-1.5">
+          <span>🤢</span> <span>Diarrhea / Upset Stomach</span>
+        </button>
+        <button data-condition="diabetes" class="condition-pill px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-blue-400 transition-all flex items-center gap-1.5">
+          <span>🩺</span> <span>Type 2 Diabetes</span>
+        </button>
+        <button data-condition="hypertension" class="condition-pill px-3 py-1.5 rounded-xl text-xs font-medium border border-slate-700 bg-slate-900/80 text-slate-300 hover:border-rose-400 transition-all flex items-center gap-1.5">
+          <span>❤️</span> <span>Hypertension / High BP</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SCANNER & INPUT ZONE (GRID) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start mb-8 no-print">
+      
+      <!-- Input Panel (Left Column 5 cols) -->
+      <div class="lg:col-span-5 space-y-4">
+        
+        <div class="glass-card p-5 rounded-2xl">
+          <!-- Input Mode Tabs -->
+          <div class="flex border-b border-slate-800 pb-3 mb-4 gap-2">
+            <button id="tabBtnCamera" class="flex-1 py-2 rounded-xl text-xs font-bold text-center transition-all bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center justify-center gap-1.5">
+              <i data-lucide="camera" class="w-4 h-4"></i> Live Camera
+            </button>
+            <button id="tabBtnUpload" class="flex-1 py-2 rounded-xl text-xs font-semibold text-center transition-all bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 flex items-center justify-center gap-1.5">
+              <i data-lucide="upload" class="w-4 h-4"></i> File Upload
+            </button>
+            <button id="tabBtnText" class="flex-1 py-2 rounded-xl text-xs font-semibold text-center transition-all bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200 flex items-center justify-center gap-1.5">
+              <i data-lucide="file-text" class="w-4 h-4"></i> Describe
+            </button>
+          </div>
+
+          <!-- 1. Live Camera View -->
+          <div id="cameraSection" class="space-y-3">
+            <div class="relative w-full aspect-[4/3] bg-slate-900 rounded-xl overflow-hidden border border-slate-800 scanner-container flex items-center justify-center">
+              <video id="webcamVideo" class="w-full h-full object-cover hidden" playsinline autoplay muted></video>
+              <canvas id="captureCanvas" class="hidden"></canvas>
+              
+              <!-- Scanning laser effect -->
+              <div id="scannerLaser" class="scanner-laser hidden"></div>
+
+              <!-- Camera Placeholder / Start prompt -->
+              <div id="cameraPlaceholder" class="text-center p-6 space-y-3">
+                <div class="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center mx-auto text-emerald-400 border border-slate-700">
+                  <i data-lucide="camera" class="w-7 h-7"></i>
+                </div>
+                <p class="text-xs text-slate-400 max-w-xs">Point your camera at your meal, plate, snack, or beverage to start scanning.</p>
+                <button id="btnStartCamera" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 flex items-center gap-1.5 mx-auto">
+                  <i data-lucide="power" class="w-4 h-4"></i> Start Camera Feed
+                </button>
+              </div>
+
+              <!-- Camera Controls Overlay (When Active) -->
+              <div id="cameraControlsOverlay" class="absolute bottom-3 left-3 right-3 flex items-center justify-between z-30 hidden">
+                <button id="btnFlipCamera" class="p-2.5 rounded-full bg-slate-950/80 backdrop-blur-md text-slate-300 hover:text-white border border-slate-700/60" title="Switch Camera">
+                  <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </button>
+                <button id="btnCapturePhoto" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-full text-xs transition-all shadow-lg shadow-emerald-500/50 flex items-center gap-2">
+                  <i data-lucide="aperture" class="w-4 h-4"></i>
+                  <span>Scan Food Now</span>
+                </button>
+                <button id="btnStopCamera" class="p-2.5 rounded-full bg-slate-950/80 backdrop-blur-md text-red-400 hover:text-red-300 border border-slate-700/60" title="Stop Camera">
+                  <i data-lucide="square" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. File Upload View -->
+          <div id="uploadSection" class="hidden space-y-3">
+            <div id="dropZone" class="w-full aspect-[4/3] rounded-xl border-2 border-dashed border-slate-700 hover:border-emerald-500/60 bg-slate-900/60 transition-all flex flex-col items-center justify-center p-6 text-center cursor-pointer">
+              <input type="file" id="fileInput" accept="image/*" class="hidden" />
+              <div class="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center mx-auto text-emerald-400 border border-slate-700 mb-3">
+                <i data-lucide="image-plus" class="w-7 h-7"></i>
+              </div>
+              <p class="text-xs font-semibold text-slate-200">Drag & Drop Food Photo Here</p>
+              <p class="text-[11px] text-slate-500 mt-1">or click to browse from device (JPG, PNG, WebP)</p>
+            </div>
+          </div>
+
+          <!-- 3. Text Describe View -->
+          <div id="textSection" class="hidden space-y-3">
+            <textarea id="textFoodInput" rows="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500" placeholder="e.g. 2 slices of pepperoni pizza, 4 garlic knots with butter sauce, and a 500ml regular cola..."></textarea>
+            <button id="btnAnalyzeText" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-1.5">
+              <i data-lucide="sparkles" class="w-4 h-4"></i> Analyze Food Profile
+            </button>
+          </div>
+
+          <!-- Quick Test Presets -->
+          <div class="mt-4 pt-4 border-t border-slate-800">
+            <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider block mb-2">Or Try Instant Presets (Zero Setup):</span>
+            <div class="grid grid-cols-3 gap-2">
+              <button data-preset="cheeseburger-fries" class="preset-btn p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-red-500/50 text-left transition-all group">
+                <span class="text-base block mb-0.5">🍔</span>
+                <span class="text-[11px] font-semibold text-slate-200 block truncate group-hover:text-red-400">Junk Combo</span>
+                <span class="text-[10px] text-slate-500 block">1,240 kcal</span>
+              </button>
+              <button data-preset="mediterranean-salmon-bowl" class="preset-btn p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 text-left transition-all group">
+                <span class="text-base block mb-0.5">🥗</span>
+                <span class="text-[11px] font-semibold text-slate-200 block truncate group-hover:text-emerald-400">Salmon Bowl</span>
+                <span class="text-[10px] text-slate-500 block">580 kcal</span>
+              </button>
+              <button data-preset="glazed-donuts" class="preset-btn p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 text-left transition-all group">
+                <span class="text-base block mb-0.5">🍩</span>
+                <span class="text-[11px] font-semibold text-slate-200 block truncate group-hover:text-amber-400">Glazed Donuts</span>
+                <span class="text-[10px] text-slate-500 block">890 kcal</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Scanned Preview & High-Level Summary (Right Column 7 cols) -->
+      <div class="lg:col-span-7 space-y-4">
+        
+        <!-- Food Overview Hero Banner -->
+        <div class="glass-card p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+          
+          <div class="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
+            
+            <!-- Food Image Preview -->
+            <div class="relative w-full sm:w-36 h-36 rounded-xl overflow-hidden bg-slate-900 border border-slate-700/80 shrink-0">
+              <img id="scannedImagePreview" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80" alt="Scanned Food" class="w-full h-full object-cover" />
+              <div id="scanningStatusBadge" class="absolute top-2 left-2 bg-slate-950/80 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-mono text-emerald-400 border border-emerald-500/30">
+                Active Scan
+              </div>
+            </div>
+
+            <!-- Title & Badges -->
+            <div class="flex-1 space-y-2">
+              <div class="flex flex-wrap gap-2 items-center">
+                <span id="nutriScoreBadge" class="nutriscore-badge nutriscore-E px-2.5 py-0.5 text-xs font-extrabold shadow-sm">Nutri-Score E</span>
+                <span id="novaBadge" class="nova-4 px-2.5 py-0.5 rounded-full text-[11px] font-semibold">NOVA 4: Ultra-Processed</span>
+              </div>
+              <h3 id="foodTitle" class="text-xl md:text-2xl font-black text-white leading-tight">Double Bacon Cheeseburger with Large Fries</h3>
+              <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                <span id="foodCategory" class="flex items-center gap-1 text-slate-300">
+                  <i data-lucide="tag" class="w-3.5 h-3.5 text-slate-400"></i> Fast Food / Ultra-Processed
+                </span>
+                <span>•</span>
+                <span id="foodPortion" class="text-slate-400">Portion: ~580g total</span>
+              </div>
+            </div>
+
+            <!-- Health Score Gauge -->
+            <div class="flex flex-col items-center justify-center p-3 rounded-2xl bg-slate-900/90 border border-slate-800 shrink-0">
+              <div class="relative w-16 h-16 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.06)" stroke-width="8" fill="transparent" />
+                  <circle id="healthScoreCircle" cx="50" cy="50" r="45" stroke="#ef4444" stroke-width="8" stroke-dasharray="283" stroke-dashoffset="232" stroke-linecap="round" fill="transparent" class="transition-all duration-1000" />
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span id="healthScoreValue" class="text-lg font-black text-white leading-none">18</span>
+                  <span class="text-[9px] uppercase font-bold text-slate-400 tracking-tighter">/ 100</span>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">Health Score</span>
+            </div>
+
+          </div>
+
+          <!-- Junk Alert Flag Banner -->
+          <div id="junkFoodAlert" class="mt-4">
+            <!-- Rendered dynamically -->
+          </div>
+
+        </div>
+
+        <!-- Quick Macro Highlights Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="glass-panel-light p-3 rounded-xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-medium block">Total Energy</span>
+            <span id="headerCalories" class="text-lg font-extrabold text-white font-mono">1,240 kcal</span>
+          </div>
+          <div class="glass-panel-light p-3 rounded-xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-medium block">Protein</span>
+            <span id="macroProteinVal" class="text-lg font-extrabold text-emerald-400 font-mono">42g</span>
+          </div>
+          <div class="glass-panel-light p-3 rounded-xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-medium block">Carbs & Sugars</span>
+            <span id="macroCarbsVal" class="text-lg font-extrabold text-blue-400 font-mono">135g</span>
+          </div>
+          <div class="glass-panel-light p-3 rounded-xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-medium block">Total Fats</span>
+            <span id="macroFatsVal" class="text-lg font-extrabold text-amber-400 font-mono">62g</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TABBED DEEP DIVE SECTION -->
+    <div class="glass-card rounded-2xl border border-slate-800 overflow-hidden">
+      
+      <!-- Tab Header Navigation -->
+      <div class="flex border-b border-slate-800 bg-slate-900/60 overflow-x-auto no-print">
+        <button id="navTabOverview" class="main-tab-btn active px-5 py-3.5 text-xs md:text-sm font-bold border-b-2 border-emerald-500 text-emerald-400 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="pie-chart" class="w-4 h-4"></i> Detailed Nutrition & Macros
+        </button>
+        <button id="navTabDamage" class="main-tab-btn px-5 py-3.5 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="flame" class="w-4 h-4 text-red-400"></i> Long-Term Damage & Organs
+        </button>
+        <button id="navTabContraindications" class="main-tab-btn px-5 py-3.5 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i> When NOT to Eat (Medical)
+        </button>
+        <button id="navTabSwaps" class="main-tab-btn px-5 py-3.5 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i> Smart Swaps & Harm Control
+        </button>
+        <button id="navTabChat" class="main-tab-btn px-5 py-3.5 text-xs md:text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+          <i data-lucide="message-square" class="w-4 h-4 text-cyan-400"></i> Ask AI Nutritionist
+        </button>
+      </div>
+
+      <!-- TAB 1 CONTENT: DETAILED NUTRITION & MACROS -->
+      <div id="contentOverview" class="p-6 space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Macro Chart & Summary -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="glass-panel-light p-4 rounded-xl border border-slate-800 flex flex-col items-center">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Macronutrient Calorie Ratio</h4>
+              <div class="w-full h-52 relative">
+                <canvas id="macroChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Key Quick Stats -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+              <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                <span class="text-slate-400 block text-[10px]">Dietary Fiber</span>
+                <span id="macroFiberVal" class="font-bold text-teal-300 text-sm">4.5g</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                <span class="text-slate-400 block text-[10px]">Total Sugars</span>
+                <span id="macroSugarVal" class="font-bold text-rose-400 text-sm">68g</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                <span class="text-slate-400 block text-[10px]">Sodium Load</span>
+                <span id="macroSodiumVal" class="font-bold text-indigo-300 text-sm">1850mg</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Macro Breakdown Bars -->
+          <div class="lg:col-span-7 space-y-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-400"></i> Nutritional Breakdown vs Daily Value (DV)
+            </h4>
+            <div id="detailedMacroList" class="space-y-3">
+              <!-- Rendered via UIRenderer -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Micronutrients & Metabolic Effectiveness -->
+        <div class="pt-6 border-t border-slate-800 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <i data-lucide="atom" class="w-4 h-4 text-cyan-400"></i> Micronutrients, Vitamins & Minerals
+          </h4>
+          <div id="micronutrientGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            <!-- Rendered via UIRenderer -->
+          </div>
+
+          <!-- Satiety and Metabolic Efficiency -->
+          <div id="effectivenessBox" class="mt-4">
+            <!-- Rendered via UIRenderer -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2 CONTENT: LONG-TERM CUMULATIVE DAMAGE & ORGAN SIMULATOR -->
+      <div id="contentDamage" class="p-6 space-y-6 hidden">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i data-lucide="activity" class="w-5 h-5 text-red-400"></i>
+              Long-Term Biological Damage Assessment
+            </h3>
+            <p class="text-xs text-slate-400">What happens to your body and internal organs if you consume this regularly over time:</p>
+          </div>
+          <span id="damageSeverityBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/40 shrink-0">
+            Severity Level: Severe
+          </span>
+        </div>
+
+        <!-- Cumulative Timeline -->
+        <div class="space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i> Chronological Pathology Timeline
+          </h4>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- 1 Week -->
+            <div class="glass-panel-light p-4 rounded-xl border border-slate-700/60 relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-wide">Hours to 1 Week</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">Acute Phase</span>
+              </div>
+              <p id="damageShortTerm" class="text-xs text-slate-300 leading-relaxed">
+                Immediate blood glucose surge, fluid retention, gastrointestinal bloating, and post-meal brain fog.
+              </p>
+            </div>
+
+            <!-- 1-3 Months -->
+            <div class="glass-panel-light p-4 rounded-xl border border-slate-700/60 relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-orange-400 uppercase tracking-wide">1 – 3 Months</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300 font-mono">Metabolic Shift</span>
+              </div>
+              <p id="damageMediumTerm" class="text-xs text-slate-300 leading-relaxed">
+                Visceral adipose fat accumulation around abdominal organs, early insulin receptor desensitization, elevated LDL-C.
+              </p>
+            </div>
+
+            <!-- 1-5 Years -->
+            <div class="glass-panel-light p-4 rounded-xl border border-slate-700/60 relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-rose-400 uppercase tracking-wide">1 – 5 Years</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 font-mono">Pathological Risk</span>
+              </div>
+              <p id="damageLongTerm" class="text-xs text-slate-300 leading-relaxed">
+                Development of non-alcoholic fatty liver disease (NAFLD), vascular wall arterial stiffening, and pre-hypertension.
+              </p>
+            </div>
+
+            <!-- 10+ Years -->
+            <div class="glass-panel-light p-4 rounded-xl border border-red-500/30 bg-red-950/20 relative overflow-hidden">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-red-400 uppercase tracking-wide">10+ Years</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-red-500/30 text-red-200 font-mono">Chronic Disease</span>
+              </div>
+              <p id="damageDecade" class="text-xs text-slate-200 leading-relaxed">
+                High risk of Type 2 Diabetes, coronary artery disease, chronic microvascular kidney strain, and accelerated biological aging.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Organ Impact Map -->
+        <div class="space-y-4 pt-4 border-t border-slate-800">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <i data-lucide="target" class="w-4 h-4 text-red-400"></i> Organ-Specific Impact Breakdown
+          </h4>
+          
+          <div id="organImpactCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 3 CONTENT: WHEN NOT TO EAT (MEDICAL CONTRAINDICATIONS) -->
+      <div id="contentContraindications" class="p-6 space-y-6 hidden">
+        
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-400"></i>
+            Medical Contraindications & "When NOT to Eat" Advisor
+          </h3>
+          <p class="text-xs text-slate-400">Crucial medical cautions for acute sicknesses (e.g. fever, cold, stomach flu) and chronic diseases:</p>
+        </div>
+
+        <!-- Acute Illness Warning Grid -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+            <i data-lucide="thermometer" class="w-4 h-4"></i> Acute Sickness & Infection Guidance
+          </h4>
+          <div id="acuteIllnessCards" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Chronic Disease Contraindications -->
+        <div class="space-y-3 pt-4 border-t border-slate-800">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <i data-lucide="heart" class="w-4 h-4 text-rose-400"></i> Chronic Disease & Metabolic Health Warnings
+          </h4>
+          <div id="chronicConditionCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Medication Interaction Alerts -->
+        <div class="space-y-3 pt-4 border-t border-slate-800">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
+            <i data-lucide="pill" class="w-4 h-4"></i> Potential Food-Medication Interactions
+          </h4>
+          <ul id="medicationInteractionList" class="space-y-2 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+            <!-- Rendered dynamically -->
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- TAB 4 CONTENT: SMART SWAPS & HARM CONTROL -->
+      <div id="contentSwaps" class="p-6 space-y-6 hidden">
+        
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-5 h-5 text-emerald-400"></i>
+            Healthier Alternatives & Harm Mitigation Protocol
+          </h3>
+          <p class="text-xs text-slate-400">Enjoy similar flavors with 80% less biological damage, plus action steps if you eat this meal today:</p>
+        </div>
+
+        <!-- Healthier Swaps -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
+            <i data-lucide="repeat" class="w-4 h-4"></i> Recommended Smart Swaps
+          </h4>
+          <div id="smartSwapCards" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Harm Mitigation Steps -->
+        <div class="space-y-3 pt-4 border-t border-slate-800">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-teal-400"></i> Immediate Damage Mitigation Protocol (If You Eat This Today)
+          </h4>
+          <ul id="harmMitigationList" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Rendered dynamically -->
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- TAB 5 CONTENT: ASK AI CLINICAL NUTRITIONIST CHAT -->
+      <div id="contentChat" class="p-6 space-y-4 hidden">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i data-lucide="message-square" class="w-5 h-5 text-cyan-400"></i>
+              Ask AI Clinical Nutritionist
+            </h3>
+            <p class="text-xs text-slate-400">Ask any specific question regarding this scanned meal, medical suitability, or workout timing.</p>
+          </div>
+          <span class="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full font-mono">Gemini Vision Interactive</span>
+        </div>
+
+        <!-- Chat messages container -->
+        <div id="chatMessages" class="h-80 overflow-y-auto space-y-3 p-4 bg-slate-900/70 rounded-xl border border-slate-800 text-xs md:text-sm">
+          <div class="flex items-start gap-3 text-slate-300">
+            <div class="w-7 h-7 rounded-lg bg-emerald-600/30 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+              <i data-lucide="bot" class="w-4 h-4"></i>
+            </div>
+            <div class="glass-panel-light p-3 rounded-xl max-w-xl">
+              <p>Hello! I'm your AI Clinical Nutritionist. I've analyzed your scanned meal. Ask me anything—for example: <em>"Can I eat this if I have a high fever?"</em> or <em>"How should I adjust my calories for the rest of the day?"</em></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Question Chips -->
+        <div class="flex flex-wrap gap-2 pt-2">
+          <button class="quick-chat-chip text-[11px] px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500/50 transition-all">
+            Is this safe if I worked out today?
+          </button>
+          <button class="quick-chat-chip text-[11px] px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500/50 transition-all">
+            Why is this bad during a fever?
+          </button>
+          <button class="quick-chat-chip text-[11px] px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 hover:border-emerald-500/50 transition-all">
+            How to make this recipe healthier at home?
+          </button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="chatForm" class="flex gap-2 pt-2">
+          <input type="text" id="chatInput" placeholder="Ask a question about this meal..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
+          <button type="submit" id="btnSendChat" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/30 flex items-center gap-1.5">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>Ask</span>
+          </button>
+        </form>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- GEMINI API KEY & SETTINGS MODAL -->
+  <div id="settingsModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-card max-w-md w-full p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
+      <button id="btnCloseSettings" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+          <i data-lucide="key" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-white">Gemini API Key Settings</h3>
+          <p class="text-xs text-slate-400">Stored safely in your browser (localStorage)</p>
+        </div>
+      </div>
+
+      <form id="settingsForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Google Gemini API Key</label>
+          <input type="password" id="inputApiKey" placeholder="AIzaSy..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono" />
+          <p class="text-[11px] text-slate-500 mt-1.5">Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-emerald-400 underline">Google AI Studio</a>.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Gemini Vision Model</label>
+          <select id="selectModel" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+            <option value="gemini-3.5-flash-lite" selected>gemini-3.5-flash-lite (Flash 3.5 - Ultra Fast & Efficient - Default)</option>
+            <option value="gemini-3.7-flash">gemini-3.7-flash (Flash 3.7 - Advanced Multimodal Reasoning)</option>
+            <option value="gemini-2.5-flash">gemini-2.5-flash (Flash 2.5 - Stable Multimodal)</option>
+          </select>
+        </div>
+
+        <div id="apiKeyTestResult" class="hidden text-xs p-3 rounded-xl"></div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="btnTestKey" class="flex-1 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 hover:text-white text-xs font-semibold">
+            Test Connection
+          </button>
+          <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/30">
+            Save Settings
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- App Bootstrap JS -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
